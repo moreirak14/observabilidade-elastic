@@ -4,7 +4,7 @@ services:
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.13.0
-    container_name: elasticsearch
+    container_name: elasticsearch-fullcycle
     environment:
       - node.name=elasticsearch
       - cluster.name=es-docker-cluster
@@ -26,7 +26,7 @@ services:
    
   kibana:
     image: docker.elastic.co/kibana/kibana:7.13.0
-    container_name: kibana
+    container_name: kibana-fullcycle
     ports:
       - 5601:5601
     environment:
@@ -35,6 +35,20 @@ services:
     networks: 
         - observability
 
+  metricbeat:
+    image: docker.elastic.co/beats/metricbeat:7.13.0
+    container_name: metricbeat
+    user: root
+    volumes:      
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./beats/metric/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
+    restart: on-failure
+    networks: 
+      - observability
+    depends_on:
+      - elasticsearch
+      - kibana
+  
 networks:
   observability:
     external: true
