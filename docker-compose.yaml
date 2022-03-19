@@ -60,6 +60,17 @@ services:
       - elasticsearch
       - kibana
   
+  apm:
+    image: docker.elastic.co/apm/apm-server-oss:7.13.0
+    container_name: apm-fullcycle
+    volumes:      
+    - ./apm/apm-server.yml:/usr/share/apm-server/apm-server.yml
+    ports:
+      - "8200:8200"
+    restart: on-failure
+    networks: 
+      - observability
+  
 networks:
   observability:
     external: true
