@@ -17,8 +17,6 @@ services:
       memlock:
         soft: -1
         hard: -1
-    volumes:
-      - ./elasticsearch_data:/usr/share/elasticsearch/data
     ports:
       - 9200:9200
     networks: 
@@ -37,12 +35,25 @@ services:
 
   metricbeat:
     image: docker.elastic.co/beats/metricbeat:7.13.0
-    container_name: metricbeat
+    container_name: metricbeat-fullcycle
     user: root
     volumes:      
       - /var/run/docker.sock:/var/run/docker.sock
       - ./beats/metric/metricbeat.yml:/usr/share/metricbeat/metricbeat.yml
     restart: on-failure
+    networks: 
+      - observability
+    depends_on:
+      - elasticsearch
+      - kibana
+  
+  heartbeat:
+    image: docker.elastic.co/beats/heartbeat:7.13.0
+    container_name: heartbeat-fullcycle
+    volumes:      
+    - ./beats/heartbeat/heartbeat.yml:/usr/share/heartbeat/heartbeat.yml
+    environment: 
+    - setup.kibana.host=kibana:5601
     networks: 
       - observability
     depends_on:
